@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秒表 DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>秒表 DApp</h1>
+    <button id="startBtn">开始</button>
+    <button id="stopBtn">停止</button>
+    <button id="resetBtn">重置</button>
+    <p>经过时间: <span id="elapsedTime">0</span> 秒</p>
+
+    <script>
+        const contractAddress = '你的合约地址';
+        const abi = [ /* 你的合约 ABI */ ];
+
+        let web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+        let contract = new web3.eth.Contract(abi, contractAddress);
+        let accounts;
+
+        async function init() {
+            accounts = await web3.eth.getAccounts();
+            updateElapsedTime();
+        }
+
+        document.getElementById('startBtn').onclick = async () => {
+            await contract.methods.start().send({ from: accounts[0] });
+        };
+
+        document.getElementById('stopBtn').onclick = async () => {
+            await contract.methods.stop().send({ from: accounts[0] });
+            updateElapsedTime();
+        };
+
+        document.getElementById('resetBtn').onclick = async () => {
+            await contract.methods.reset().send({ from: accounts[0] });
+            updateElapsedTime();
+        };
+
+        async function updateElapsedTime() {
+            const time = await contract.methods.getElapsedTime().call();
+            document.getElementById('elapsedTime').innerText = time;
+        }
+
+        init();
+    </script>
+</body>
+</html>
